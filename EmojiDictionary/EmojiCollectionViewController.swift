@@ -24,11 +24,37 @@ class EmojiCollectionViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+		
+		let item: NSCollectionLayoutItem = .init(
+			layoutSize: NSCollectionLayoutSize(
+				widthDimension: .fractionalWidth(1),
+				heightDimension: .fractionalHeight(1)
+			)
+		)
+		
+		let group = NSCollectionLayoutGroup.horizontal(
+			layoutSize: NSCollectionLayoutSize(
+				widthDimension: .fractionalWidth(1),
+				heightDimension: .absolute(70)
+			),
+			subitem: item,
+			count: 1
+		)
+		
+		let section: NSCollectionLayoutSection = .init(group: group)
+		
+		collectionView.collectionViewLayout =
+		UICollectionViewCompositionalLayout(section: section)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         collectionView.reloadData()
     }
+	
+	func deleteEmoji(at indexPath: IndexPath) {
+		emojis.remove(at: indexPath.row)
+		collectionView.deleteItems(at: [indexPath])
+	}
 
     // MARK: UICollectionViewDataSource
 
@@ -57,6 +83,27 @@ class EmojiCollectionViewController: UICollectionViewController {
         //Step 4: Return cell
         return cell
     }
+	
+	override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+		let config: UIContextMenuConfiguration = .init(
+			identifier: nil,
+			previewProvider: nil
+		) {
+			(elements) -> UIMenu? in
+			let delete: UIAction = .init(title: "Delete") {
+				(action) in
+				self.deleteEmoji(at: indexPath)
+			}
+			return UIMenu(
+				title: "",
+				image: nil,
+				identifier: nil,
+				options: [],
+				children: [delete]
+			)
+		}
+			return config
+	}
 
     @IBSegueAction func addEditEmoji(_ coder: NSCoder, sender: Any?) -> AddEditEmojiTableViewController? {
         if let cell = sender as? UICollectionViewCell, let indexPath = collectionView.indexPath(for: cell) {
@@ -73,8 +120,15 @@ class EmojiCollectionViewController: UICollectionViewController {
         guard segue.identifier == "saveUnwind",
             let sourceViewController = segue.source as? AddEditEmojiTableViewController,
             let emoji = sourceViewController.emoji else { return }
-        
-        // Update the data source and collection view
+		
+		if let path = collectionView.indexPathsForSelectedItems?.first {
+			emojis[path.row] = emoji
+			collectionView.reloadItems(at: [path])
+		} else {
+			let newIndexPath: IndexPath = .init(row: emojis.count, section: 0)
+			emojis.append(emoji)
+			collectionView.insertItems(at: [newIndexPath])
+		}
     }
 
 }

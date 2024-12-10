@@ -74,6 +74,9 @@
                                 </collectionViewCellContentView>
                                 <size key="customSize" width="397" height="72"/>
                                 <connections>
+                                    <outlet property="descriptionLabel" destination="0Ko-jM-Abn" id="Cad-YA-UOF"/>
+                                    <outlet property="nameLabel" destination="zlA-Uu-Yob" id="sne-LG-4nT"/>
+                                    <outlet property="symbolLabel" destination="Bs6-bM-Vfl" id="yzk-Zr-Fdy"/>
                                     <segue destination="pI4-Te-ok3" kind="presentation" id="HQp-YP-WdF"/>
                                 </connections>
                             </collectionViewCell>
